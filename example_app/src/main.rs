@@ -38,6 +38,7 @@ pub fn main() {
                 .with_uri("http://localhost:3000")
                 .with_module_name("chat")
                 .with_run_fn(DbConnection::run_threaded)
+                // Some tables
                 .add_table(RemoteTables::planets)
                 .add_table(RemoteTables::players)
                 .add_table(RemoteTables::game_servers)

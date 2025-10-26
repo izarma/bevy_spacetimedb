@@ -1,9 +1,8 @@
 [workspace]
-resolver = "2"
 members = ["bevy_spacetimedb", "macros", "example_app"]
 
 [workspace.dependencies]
-bevy = { version = "0.17.1", default-features = false, features = [
+bevy = { version = "0.17", default-features = false, features = [
     "std",
     "bevy_log",
 ] }
