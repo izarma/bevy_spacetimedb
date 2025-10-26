@@ -47,6 +47,21 @@ impl TableMessages {
     }
 }
 
+#[derive(Debug, Default, Clone, Copy)]
+pub struct TableMessagesWithoutPrimaryKey {
+    pub insert: bool,
+    pub delete: bool,
+}
+
+impl TableMessagesWithoutPrimaryKey {
+    pub fn all() -> Self {
+        Self {
+            insert: true,
+            delete: true,
+        }
+    }
+}
+
 impl<
     C: spacetime_codegen::DbConnection<Module = M> + spacetimedb_sdk::DbContext,
     M: spacetime_codegen::SpacetimeModule<DbConnection = C>,
@@ -87,6 +102,34 @@ impl<
             }
             if messages.update && messages.insert {
                 plugin.on_insert_update(app, &table);
+            }
+        };
+
+        // Store this table, and later when the plugin is built, call them on .
+        self.table_registers.push(Box::new(register));
+
+        self
+    }
+
+    /// Registers a table without a private key for the bevy application with the specified messages in the `messages` parameter.
+    pub fn add_table_without_pk<TRow, TTable, F>(
+        mut self,
+        accessor: F,
+        messages: TableMessagesWithoutPrimaryKey,
+    ) -> Self
+    where
+        TRow: Send + Sync + Clone + 'static,
+        TTable: Table<Row = TRow>,
+        F: 'static + Send + Sync + Fn(&'static C::DbView) -> TTable,
+    {
+        // A closure that sets up messages for the table
+        let register = move |plugin: &Self, app: &mut App, db: &'static C::DbView| {
+            let table = accessor(db);
+            if messages.insert {
+                plugin.on_insert(app, &table);
+            }
+            if messages.delete {
+                plugin.on_delete(app, &table);
             }
         };
 

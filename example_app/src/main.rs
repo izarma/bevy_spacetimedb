@@ -2,7 +2,7 @@ use bevy::{log::LogPlugin, prelude::*};
 use bevy_spacetimedb::{
     ReadDeleteMessage, ReadInsertMessage, ReadInsertUpdateMessage, ReadReducerMessage,
     ReadStdbConnectedMessage, ReadUpdateMessage, RegisterReducerMessage, StdbConnection,
-    StdbPlugin, TableMessages,
+    StdbPlugin, TableMessages,TableMessagesWithoutPrimaryKey
 };
 use spacetimedb_sdk::ReducerEvent;
 use stdb::{DbConnection, Reducer};
@@ -10,8 +10,7 @@ use stdb::{DbConnection, Reducer};
 use crate::stdb::gs_register_reducer::gs_register;
 use crate::stdb::gs_set_ready_reducer::gs_set_ready;
 use crate::stdb::{
-    GameServersTableAccess, PlanetsTableAccess, Player, PlayersTableAccess, RemoteModule,
-    RemoteReducers, RemoteTables,
+    GalaxySettingsTableAccess, GameServersTableAccess, PlanetsTableAccess, Player, PlayersTableAccess, RemoteModule, RemoteReducers, RemoteTables
 };
 mod stdb;
 
@@ -42,7 +41,9 @@ pub fn main() {
                 .add_table(RemoteTables::planets)
                 .add_table(RemoteTables::players)
                 .add_table(RemoteTables::game_servers)
-                .add_partial_table(RemoteTables::players, TableMessages::no_update()) // Some tables
+                .add_partial_table(RemoteTables::players, TableMessages::no_update())
+                .add_table_without_pk(RemoteTables::galaxy_settings, TableMessagesWithoutPrimaryKey::all())
+                // Some tables
                 // do not have update messages, especially those without primary keys.
                 .add_reducer::<GsRegister>()
                 .add_reducer::<GsSetReady>(),
